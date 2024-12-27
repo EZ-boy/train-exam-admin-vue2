@@ -1,0 +1,18 @@
+server:
+  port: 8888
+logging:
+  path: /XXX
+spring:
+  datasource:
+    url: jdbc:XXX
+    username: XXX
+    password: XXX
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  ftp:
+    ip: XXX
+    port: XXX
+    username: XXX
+    password: XXX
+    path: /XXX
+
+

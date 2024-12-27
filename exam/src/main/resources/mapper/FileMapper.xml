@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.FileMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.Files">
+    <id column="file_id" jdbcType="INTEGER" property="fileId" />
+    <result column="rela_id" jdbcType="VARCHAR" property="relaId" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_path" jdbcType="VARCHAR" property="filePath" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="file_size" jdbcType="VARCHAR" property="fileSize" />
+    <result column="org_no" jdbcType="VARCHAR" property="orgNo" />
+    <result column="oper_time" jdbcType="TIMESTAMP" property="operTime" />
+    <result column="oper_emp_no" jdbcType="VARCHAR" property="operEmpNo" />
+    <result column="data_oper_type" jdbcType="VARCHAR" property="dataOperType" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+      file_id, rela_id, file_name, file_path, file_type, file_size, org_no,
+      oper_time, data_oper_type
+    from K_ATTACHMENT
+    where file_id = #{file_id,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insertFileInfo" parameterType="com.mindskip.xzs.domain.Files" useGeneratedKeys="true" keyProperty="fileId">
+    insert into K_ATTACHMENT (file_id, rela_id, file_name,
+      file_path, file_type, file_size,
+      org_no, oper_time, data_oper_type
+      )
+    values (#{fileId,jdbcType=INTEGER}, #{relaId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},
+      #{filePath,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, #{fileSize,jdbcType=VARCHAR},
+      #{orgNo,jdbcType=VARCHAR}, NOW(), #{dataOperType,jdbcType=VARCHAR}
+      )
+  </insert>
+
+  <select id="getFileDataByFileId" parameterType="String" resultType="Map">
+      select
+        FILE_ID as "fileId",
+        RELA_ID as "relaId",
+        FILE_NAME as "fileName",
+        FILE_PATH as "filePath",
+        FILE_TYPE as "fileType",
+        FILE_SIZE as "fileSize",
+        ORG_NO as "orgNo",
+        OPER_EMP_NO as "operEmpNo"
+      from
+        K_ATTACHMENT
+      where
+        FILE_ID = #{fileId, jdbcType=VARCHAR}
+        AND DATA_OPER_TYPE != 'D'
+  </select>
+
+</mapper>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.TalkMapper">
+    <resultMap id="talkResultMap" type="com.mindskip.xzs.domain.talk.TalkContent">
+        <id column="exp_id" jdbcType="VARCHAR" property="expId" />
+        <result column="exp_title" jdbcType="VARCHAR" property="expTitle" />
+        <result column="exp_content" jdbcType="VARCHAR" property="expContent" />
+        <result column="subject_id" jdbcType="TIMESTAMP" property="subjectId" />
+        <result column="create_by" jdbcType="TIMESTAMP" property="createBy" />
+        <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+        <result column="exp_state" jdbcType="VARCHAR" property="expState" />
+        <result column="avg_oper_eval" jdbcType="VARCHAR" property="avgOperEval" />
+    </resultMap>
+    <select id="getTalkList" resultMap="talkResultMap" parameterType="com.mindskip.xzs.viewmodel.talk.TalkRequestVM">
+        SELECT
+        t.exp_id,
+        t.exp_title,
+        t.exp_content,
+        t.subject_id,
+        t.create_by,
+        DATE_FORMAT(t.create_time,'%Y-%m-%d %H:%i:%s') as create_time,
+        t.exp_state,
+        ROUND(
+        (SELECT AVG(c.oper_eval)
+        FROM k_exp_eval c
+        WHERE c.exp_id = t.exp_id), 0) AS avg_oper_eval
+        FROM
+        k_exp_content t
+        <where>
+                t.exp_state = "02"
+            <if test="expTitle!= null and expTitle!= ''">
+                AND (t.exp_title LIKE CONCAT('%', #{expTitle}, '%') OR t.exp_content LIKE CONCAT('%', #{expTitle}, '%'))
+            </if>
+        </where>
+        ORDER BY
+        t.create_time ASC
+    </select>
+    <insert id="createTalk" parameterType="com.mindskip.xzs.domain.talk.TalkContent">
+        INSERT INTO k_exp_content
+            (exp_id,
+             exp_title,
+             exp_content,
+             subject_id,
+             create_by,
+             create_time,
+             exp_state)
+        VALUES
+            (#{expId,jdbcType=VARCHAR},
+             #{expTitle,jdbcType=VARCHAR},
+             #{expContent,jdbcType=VARCHAR},
+             #{subjectId,jdbcType=VARCHAR},
+             #{createBy,jdbcType=VARCHAR},
+             now(),
+             #{expState,jdbcType=VARCHAR})
+    </insert>
+    <update id="updateTalk" parameterType="com.mindskip.xzs.domain.talk.TalkContent">
+        update k_exp_content
+        <set>
+            <if test="expTitle!= null and expTitle!= ''">
+                exp_title = #{expTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="expContent!= null and expContent!= ''">
+                exp_content = #{expContent,jdbcType=VARCHAR},
+            </if>
+            <if test="subjectId!= null and subjectId!= ''">
+                subject_id = #{subjectId,jdbcType=VARCHAR},
+            </if>
+            <if test="createBy!= null and createBy!= ''">
+                create_by = #{createBy,jdbcType=VARCHAR},
+            </if>
+        </set>
+            where exp_id = #{expId,jdbcType=VARCHAR} and exp_state != "03"
+    </update>
+    <select id="getTalkDetail" resultMap="talkResultMap" parameterType="com.mindskip.xzs.domain.talk.TalkContent">
+        SELECT
+        t.exp_id,
+        t.exp_title,
+        t.exp_content,
+        t.subject_id,
+        t.create_by,
+        t.create_time,
+        t.exp_state
+        FROM
+        k_exp_content t
+        WHERE
+        t.exp_id = #{expId,jdbcType=VARCHAR}
+    </select>
+    <delete id="deleteTalk" parameterType="com.mindskip.xzs.domain.talk.TalkContent">
+        update k_exp_content
+        set exp_state = "03"
+        where exp_id = #{expId,jdbcType=VARCHAR}
+    </delete>
+</mapper>

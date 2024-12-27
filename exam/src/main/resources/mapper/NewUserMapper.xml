@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.NewUserMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_uuid" jdbcType="VARCHAR" property="userUuid" />
+    <result column="user_no" jdbcType="VARCHAR" property="userNo" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="real_name" jdbcType="VARCHAR" property="realName" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+    <result column="sex" jdbcType="INTEGER" property="sex" />
+    <result column="birth_day" jdbcType="TIMESTAMP" property="birthDay" />
+    <result column="user_level" jdbcType="INTEGER" property="userLevel" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="role" jdbcType="INTEGER" property="role" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="image_path" jdbcType="VARCHAR" property="imagePath" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="last_active_time" jdbcType="TIMESTAMP" property="lastActiveTime" />
+    <result column="deleted" jdbcType="VARCHAR" property="deletedStr" />
+    <result column="wx_open_id" jdbcType="VARCHAR" property="wxOpenId" />
+    <result column="org_no" jdbcType="VARCHAR" property="orgNo" />
+    <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+      <collection property="positionList" javaType="java.util.ArrayList" ofType="com.mindskip.xzs.domain.Position">
+          <result column="position_no" jdbcType="VARCHAR" property="positionNo"/>
+          <result column="position_name" jdbcType="VARCHAR" property="positionName"/>
+          <result column="template_no" jdbcType="VARCHAR" property="templateNo"/>
+          <result column="template_name" jdbcType="VARCHAR" property="templateName"/>
+      </collection>
+  </resultMap>
+  <resultMap id="OrgResultMap" type="com.mindskip.xzs.domain.main.Org">
+    <result column="org_no" jdbcType="VARCHAR" property="orgNo" />
+    <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+    <result column="p_org_no" jdbcType="VARCHAR" property="pOrgNo" />
+    <result column="org_type" jdbcType="VARCHAR" property="orgType" />
+    <result column="sort_no" jdbcType="INTEGER" property="sortNo" />
+    <result column="org_shorthand" jdbcType="VARCHAR" property="orgShorthand" />
+  </resultMap>
+    <resultMap id="positionResultList" type="com.mindskip.xzs.domain.Position">
+        <result jdbcType="VARCHAR" column="position_no" property="positionNo"/>
+        <result jdbcType="VARCHAR" column="position_name" property="positionName"/>
+        <result jdbcType="VARCHAR" column="template_no" property="templateNo"/>
+        <result jdbcType="VARCHAR" column="template_name" property="templateName"/>
+        <result jdbcType="VARCHAR" column="org_no" property="orgNo"/>
+        <result jdbcType="VARCHAR" column="user_no" property="userNo"/>
+        <result jdbcType="VARCHAR" column="user_name" property="userName"/>
+        <collection property="list" javaType="java.util.ArrayList" ofType="com.mindskip.xzs.domain.UserOrPosition">
+            <result column="position_no" jdbcType="VARCHAR" property="positionNo"/>
+            <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        </collection>
+    </resultMap>
+  <sql id="Base_Column_List">
+    id, user_uuid,user_no, user_name, password, real_name, age, sex, birth_day, phone,
+    role, status, image_path, create_time, modify_time, last_active_time, deleted, wx_open_id,org_no
+  </sql>
+
+  <select id="queryOrgList" resultMap="OrgResultMap">
+    SELECT
+        DATA.org_no,
+        DATA.org_name,
+        DATA.p_org_no,
+        DATA.sort_no,
+        DATA.org_shorthand,
+        DATA.org_type
+    FROM
+        (
+        SELECT
+            @ids AS _ids,
+            ( SELECT @ids := GROUP_CONCAT( org_no ) FROM o_org WHERE FIND_IN_SET( p_org_no, @ids ) ) AS cids,
+            @l := @l + 1 AS LEVEL
+        FROM
+            o_org,
+            ( SELECT @ids := #{orgNo}, @l := 0 ) b
+        WHERE
+            @ids IS NOT NULL
+        ) ID,
+        o_org DATA
+    WHERE
+        FIND_IN_SET( DATA.org_no, ID._ids )
+    ORDER BY
+        LEVEL,
+        org_no,
+        sort_no
+  </select>
+
+    <select id="getOrgList" resultMap="OrgResultMap">
+        SELECT
+            DATA.org_no,
+            DATA.org_name,
+            DATA.p_org_no,
+            DATA.sort_no,
+            DATA.org_shorthand,
+            DATA.org_type
+        FROM o_org DATA
+        WHERE
+            p_org_no=#{orgNo}
+        ORDER BY
+            sort_no
+
+    </select>
+
+  <select id="queryOrgInfo" resultMap="OrgResultMap">
+    SELECT
+      org_no,
+      org_name,
+      p_org_no,
+      sort_no,
+      org_shorthand,
+      org_type
+    FROM
+      o_org o
+    <trim prefix="where" prefixOverrides="and">
+      <if test="orgNo != null and orgNo != ''">
+        and org_no= #{orgNo}
+      </if>
+    </trim>
+  </select>
+
+  <select id="getUserListByOrgNo" resultMap="BaseResultMap">
+      SELECT
+      t.id,
+      t.user_uuid,
+      t.user_no,
+      t.user_name,
+      t.PASSWORD,
+      t.real_name,
+      t.age,
+      t.sex,
+      t.phone,
+      t.ROLE,
+      t.STATUS,
+      t.image_path,
+      t.create_time,
+      t.modify_time,
+      t.last_active_time,
+      t.deleted,
+      t.wx_open_id,
+      t.org_no,
+      (select a.org_name from o_org a where t.org_no = a.org_no) org_name,
+      p.position_no,
+      p.position_name,
+      p.template_no,
+      p.template_name
+      FROM
+      k_user t
+      left join k_user_or_position uos on t.user_name=uos.user_id
+      left join k_position p on uos.position_no=p.position_no
+      where deleted != '1'
+      <if test="orgNo != null and orgNo != ''">
+          and t.org_no like  concat( #{orgNo} ,'%')
+      </if>
+      <if test="realName != null and realName != ''">
+          and t.real_name like  concat( '%' , #{realName} , '%')
+      </if>
+  </select>
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from k_user
+        where id in
+        <foreach item="id" collection="list" open="(" separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </select>
+    <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.User" useGeneratedKeys="true" keyProperty="id">
+        insert into k_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="userUuid != null">
+                user_uuid,
+            </if>
+            <if test="userNo!=null">
+                user_no,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="password != null">
+                password,
+            </if>
+            <if test="realName != null">
+                real_name,
+            </if>
+            <if test="age != null">
+                age,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="birthDay != null">
+                birth_day,
+            </if>
+            <if test="userLevel != null">
+                user_level,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="role != null">
+                role,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="imagePath != null">
+                image_path,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="modifyTime != null">
+                modify_time,
+            </if>
+            <if test="lastActiveTime != null">
+                last_active_time,
+            </if>
+            <if test="deleted != null">
+                deleted,
+            </if>
+            <if test="wxOpenId != null">
+                wx_open_id,
+            </if>
+            <if test="orgNo != null">
+                org_no,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="userUuid != null">
+                #{userUuid,jdbcType=VARCHAR},
+            </if>
+            <if test="userNo!=null">
+                #{userNo,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="age != null">
+                #{age,jdbcType=INTEGER},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=INTEGER},
+            </if>
+            <if test="birthDay != null">
+                #{birthDay,jdbcType=TIMESTAMP},
+            </if>
+            <if test="userLevel != null">
+                #{userLevel,jdbcType=INTEGER},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="role != null">
+                #{role,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="imagePath != null">
+                #{imagePath,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastActiveTime != null">
+                #{lastActiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleted != null">
+                #{deleted,jdbcType=BIT},
+            </if>
+            <if test="wxOpenId != null">
+                #{wxOpenId,jdbcType=VARCHAR},
+            </if>
+            <if test="orgNo != null">
+                #{orgNo,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.mindskip.xzs.domain.User">
+        update k_user
+        <set>
+            <if test="userUuid != null">
+                user_uuid = #{userUuid,jdbcType=VARCHAR},
+            </if>
+            <if test="userNo!=null">
+                user_no=#{userNo,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null">
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="realName != null">
+                real_name = #{realName,jdbcType=VARCHAR},
+            </if>
+            <if test="age != null">
+                age = #{age,jdbcType=INTEGER},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=INTEGER},
+            </if>
+            <if test="birthDay != null">
+                birth_day = #{birthDay,jdbcType=TIMESTAMP},
+            </if>
+            <if test="userLevel != null">
+                user_level = #{userLevel,jdbcType=INTEGER},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="role != null">
+                role = #{role,jdbcType=INTEGER},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="imagePath != null">
+                image_path = #{imagePath,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyTime != null">
+                modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastActiveTime != null">
+                last_active_time = #{lastActiveTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deleted != null">
+                deleted = #{deleted,jdbcType=BIT},
+            </if>
+            <if test="wxOpenId != null">
+                wx_open_id = #{wxOpenId,jdbcType=VARCHAR},
+            </if>
+            <if test="orgNo != null">
+                org_no = #{orgNo,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from t_user
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="getUserByUserName" resultMap="BaseResultMap">
+        select
+            id, user_uuid, user_no, user_name, password, real_name, age, sex, birth_day, phone,
+            role, status, image_path, create_time, modify_time, last_active_time, deleted deleted_str, wx_open_id,org_no, (SELECT org_name FROM o_org o WHERE o.org_no=k.org_no)org_name
+        from k_user k
+        where deleted != 'D'  and user_name=#{value} limit 1
+    </select>
+    <select id="getUserById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from k_user
+        where id=#{value}
+    </select>
+
+    <update id="updatePwd">
+        update k_user
+        <set>
+            <if test="password != null">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where user_name = #{userName,jdbcType=VARCHAR}
+    </update>
+    <!--新增岗位信息-->
+    <insert id="insertPosition" parameterType="com.mindskip.xzs.domain.Position">
+        insert into k_position(
+        <if test="templateName!=null">
+            template_name,
+        </if>
+        <if test="templateNo!=null">
+            template_no,
+        </if>
+        <if test="positionName!=null">
+            position_name,
+        </if>
+        <if test="positionNo!=null">
+            position_no
+        </if>
+        ) values (
+        <if test="templateName!=null">
+            template_name=#{templateName},
+        </if>
+        <if test="templateNo!=null">
+            template_no=#{templateNo},
+        </if>
+        <if test="positionName!=null">
+            position_name=#{positionName},
+        </if>
+        <if test="positionNo!=null">
+            position_no=#{positionNo}
+        </if>
+        )
+    </insert>
+    <!--修改岗位信息-->
+    <update id="updatePosition" parameterType="com.mindskip.xzs.domain.Position">
+        update k_position
+        <set>
+            <if test="templateName!=null">
+                template_name=#{templateName},
+            </if>
+            <if test="positionName!=null">
+                position_name=#{positionName},
+            </if>
+            <if test="positionNo!=null">
+                position_no=#{positionNo},
+            </if>
+        </set>
+        where template_no=#{templateNo}
+    </update>
+    <!--删除岗位信息-->
+    <delete id="deletePosition" parameterType="com.mindskip.xzs.domain.Position">
+        delete
+        from k_position
+        where template_no = #{templateNo}
+    </delete>
+
+    <!--添加用户与岗位的关联-->
+    <insert id="insertUserOrPosition" parameterType="com.mindskip.xzs.domain.UserOrPosition">
+        insert into k_user_or_position(org_id, position_no, user_id,delete_flag)
+        values (#{orgId}, #{positionNo}, #{userName},'0')
+    </insert>
+
+    <update id="updateUserOrPosition" parameterType="com.mindskip.xzs.domain.UserOrPosition">
+        update k_user_or_position set delete_flag='1'
+        where position_no=#{positionNo} and user_id=#{userName}
+    </update>
+
+    <!-- 解除用户与岗位的关联 -->
+    <update id="deleteUserOrPosition" parameterType="com.mindskip.xzs.domain.UserOrPosition">
+        delete from  k_user_or_position
+        where user_id = #{userId}
+    </update>
+
+    <select id="getPositionListByUserNo" resultMap="positionResultList">
+        select p.template_name, p.template_no, p.position_name, p.position_no,uos.user_id
+        from k_user_or_position uos
+        left join k_position p on uos.position_no = p.position_no
+        where uos.delete_flag!='1' and uos.position_no is not null and uos.user_id=#{userName}
+    </select>
+    <select id="getPositionList" resultMap="positionResultList" parameterType="com.mindskip.xzs.domain.User">
+        SELECT t.position_no,t.position_name,t.template_no,t.template_name,t.org_no FROM `k_position` t
+        where t.org_no=#{orgNo}
+    </select>
+    <select id="getUserOrPosition" resultType="com.mindskip.xzs.domain.UserOrPosition">
+        select  t.org_id,t.position_no,t.user_id from k_user_or_position t where t.position_no=#{positionNo} and t.user_id=#{userName}
+    </select>
+</mapper>

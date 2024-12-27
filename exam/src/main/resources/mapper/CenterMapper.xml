@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.CenterMapper">
+    <resultMap id="CenterResultMap" type="com.mindskip.xzs.domain.center.Center">
+        <id column="id" jdbcType="INTEGER" property="id" />
+        <id column="kid" jdbcType="INTEGER" property="kid" />
+        <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+        <result column="user_no" jdbcType="VARCHAR" property="userNo" />
+        <result column="current_time" jdbcType="INTEGER" property="currentTime" />
+        <result column="total_time" jdbcType="INTEGER" property="totalTime" />
+        <result column="study_progress" jdbcType="INTEGER" property="studyProgress" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+        <result column="major_id" jdbcType="INTEGER" property="majorId" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="sub_title" jdbcType="VARCHAR" property="subTitle" />
+        <result column="study_type" jdbcType="VARCHAR" property="studyType" />
+        <result column="like_num" jdbcType="INTEGER" property="likeNum" />
+        <result column="comment_num" jdbcType="INTEGER" property="commentNum" />
+        <result column="practical_operation" jdbcType="VARCHAR" property="practicalOperation" />
+        <result column="oper_no" jdbcType="VARCHAR" property="operNo" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, file_id, user_no, current_time, total_time, study_progress, create_time, update_time
+    </sql>
+
+    <select id="selectByUserNoOld" resultMap="CenterResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.center.CenterRequestVM">
+        SELECT sp.id, sp.file_id, sp.user_no, sp.current_time, sp.total_time, sp.study_progress, sp.create_time, sp.update_time,
+               kt.file_type, kt.major_id, kt.title, kt.sub_title, kt.study_type, kt.like_num, kt.comment_num, kt.practical_operation, kt.oper_no
+        FROM k_study_progress sp
+        JOIN k_train kt ON sp.file_id = kt.file_id
+        WHERE sp.user_no = #{userNo,jdbcType=VARCHAR}
+        <if test="fileType != null and fileType != ''">
+            AND kt.file_type = #{fileType,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+
+<!--    <select id="selectByUserNo" resultMap="CenterResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.center.CenterRequestVM">-->
+<!--        SELECT-->
+<!--            s.id,-->
+<!--            s.file_id,-->
+<!--            s.user_no,-->
+<!--            s.`current_time`,-->
+<!--            s.total_time,-->
+<!--            s.study_progress,-->
+<!--            s.create_time,-->
+<!--            s.update_time,-->
+<!--            k.file_type,-->
+<!--            k.major_id,-->
+<!--            k.title,-->
+<!--            k.sub_title,-->
+<!--            k.study_type,-->
+<!--            k.like_num,-->
+<!--            k.comment_num,-->
+<!--            k.practical_operation,-->
+<!--            k.oper_no-->
+<!--        FROM-->
+<!--            k_train k-->
+<!--                JOIN (-->
+<!--                SELECT-->
+<!--                    a.train_ids-->
+<!--                FROM-->
+<!--                    k_task_exam a-->
+<!--                        JOIN k_task_user b ON a.id = b.task_exam_id-->
+<!--                WHERE-->
+<!--                    b.user_id = #{userId,jdbcType=VARCHAR}-->
+<!--            ) x ON k.id = x.train_ids-->
+<!--                LEFT JOIN (-->
+<!--                SELECT-->
+<!--                    id,-->
+<!--                    file_id,-->
+<!--                    user_no,-->
+<!--                    `current_time`,-->
+<!--                    total_time,-->
+<!--                    study_progress,-->
+<!--                    create_time,-->
+<!--                    update_time-->
+<!--                FROM-->
+<!--                    k_study_progress-->
+<!--                WHERE-->
+<!--                    user_no = #{userNo,jdbcType=VARCHAR}-->
+<!--            ) s ON s.file_id = k.file_id-->
+<!--        where 1 = 1-->
+<!--        <if test="fileType != null and fileType != ''">-->
+<!--            AND k.file_type = #{fileType,jdbcType=VARCHAR}-->
+<!--        </if>-->
+<!--    </select>-->
+
+    <select id="selectByUserNo" resultMap="CenterResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.center.CenterRequestVM">
+        SELECT
+        s.id,
+        s.file_id,
+        s.user_no,
+        s.`current_time`,
+        s.total_time,
+        s.study_progress,
+        s.create_time,
+        s.update_time,
+        k.id as kid,
+        k.file_type,
+        k.major_id,
+        k.title,
+        k.sub_title,
+        k.study_type,
+        k.like_num,
+        k.comment_num,
+        k.practical_operation,
+        k.oper_no
+        FROM
+        k_train k
+        LEFT JOIN (
+        SELECT
+        id,
+        file_id,
+        user_no,
+        `current_time`,
+        total_time,
+        study_progress,
+        create_time,
+        update_time
+        FROM
+        k_study_progress
+        WHERE
+        user_no = #{userNo,jdbcType=VARCHAR}
+        ) s ON s.file_id = k.file_id
+        where 1 = 1
+        <if test="fileType != null and fileType != ''">
+            AND k.file_type = #{fileType,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="queryTrainByUserId" resultType="map" parameterType="com.mindskip.xzs.viewmodel.admin.center.CenterRequestVM">
+        SELECT DISTINCT
+            a.train_ids
+        FROM
+            k_task_exam a
+                JOIN k_task_user b ON a.id = b.task_exam_id
+        WHERE
+            b.user_id = #{userId,jdbcType=VARCHAR}
+          AND a.train_ids IS NOT NULL
+          AND a.train_ids != ''
+    </select>
+    <!--有学习考试任务的人按组织统计-->
+    <select id="qryUser4OrgTasking" resultType="map" parameterType="map">
+        SELECT
+            count(DISTINCT a.user_id) tasking_cnt,
+            b.org_no,
+            b.org_name,
+            0 study_finished,
+            0 exam_finished
+        FROM
+            k_task_user a
+                RIGHT JOIN (
+                SELECT
+                    id,
+                    user_uuid,
+                    user_no,
+                    user_name,
+                    org_no,
+                    (
+                        SELECT
+                            org_name
+                        FROM
+                            o_org
+                        WHERE
+                            t.org_no = org_no
+                    ) org_name
+                FROM
+                    k_user t
+                WHERE
+                    deleted != '1'
+            ) b ON a.user_id = b.id
+                JOIN (
+                SELECT
+                    id
+                FROM
+                    k_task_exam
+                WHERE
+                    deleted != 'D'
+            ) k ON (a.task_exam_id = k.id)
+        GROUP BY
+            org_no,
+            org_name
+        order by count(DISTINCT a.user_id) desc
+    </select>
+    <!--完成学习的人按组织统计-->
+    <select id="qryUser4StudyFinished" resultType="map" parameterType="map">
+        SELECT
+            count(1) study_finished,
+            c.org_no
+        FROM
+            (
+                SELECT
+                    a.user_no,
+                    b.cnt2 kjgwc,
+                    k.org_no,
+                    IFNULL(a.cnt1, 0) kjywc,
+                    FLOOR((IFNULL(a.cnt1, 0) / b.cnt2)) kjwcl
+                FROM
+                    (
+                        SELECT
+                            count(1) cnt1,
+                            user_no
+                        FROM
+                            k_study_progress
+                        WHERE
+                            is_completed = '02'
+                        GROUP BY
+                            user_no
+                    ) a
+                        LEFT JOIN (
+                        SELECT
+                            count(1) cnt2,
+                            user_no
+                        FROM
+                            k_study_progress
+                        WHERE
+                            1 = 1
+                        GROUP BY
+                            user_no
+                    ) b ON (a.user_no = b.user_no)
+                        LEFT JOIN k_user k ON (a.user_no = k.user_name)
+            ) c
+        WHERE
+            c.kjwcl = 1
+        GROUP BY
+            c.org_no
+    </select>
+
+    <!--完成考试的人按组织统计-->
+    <select id="qryUser4ExamFinished" resultType="map" parameterType="map">
+        SELECT
+            count(1) exam_finished,
+            c.org_no
+        FROM
+            (
+                SELECT
+                    a.user_id,
+                    a.cnt1 rwgwc,
+                    k.org_no,
+                    IFNULL(b.cnt2, 0) rwywc,
+                    FLOOR((IFNULL(b.cnt2, 0) / a.cnt1)) rwwcl
+                FROM
+                    (
+                        SELECT
+                            user_id,
+                            count(1) cnt1
+                        FROM
+                            k_task_user t1
+                                JOIN (
+                                SELECT
+                                    id
+                                FROM
+                                    k_task_exam
+                                WHERE
+                                    deleted != 'D'
+                            ) t2 ON (t1.task_exam_id = t2.id)
+                        GROUP BY
+                            user_id
+                    ) a
+                        LEFT JOIN (
+                        SELECT
+                            create_user,
+                            count(1) cnt2
+                        FROM
+                            k_task_exam_customer_answer
+                        GROUP BY
+                            create_user
+                    ) b ON (a.user_id = b.create_user)
+                        LEFT JOIN k_user k ON (a.user_id = k.id)
+            ) c
+        WHERE
+            c.rwwcl = 1
+        GROUP BY
+            c.org_no
+    </select>
+
+    <!--有学习考试任务的人按专业、组织统计-->
+    <select id="qryUser4OrgTaskingByMajor" resultType="map" parameterType="map">
+        SELECT
+            count(DISTINCT a.user_id) tasking_major_cnt,
+            a2.major_id,
+            (
+                SELECT
+                    major_desc
+                FROM
+                    k_major
+                WHERE
+                    id = a2.major_id
+            ) major_name,
+            b.org_no,
+            b.org_name,
+            0 exam_major_finished
+        FROM
+            k_task_user a
+                LEFT JOIN (
+                SELECT
+                    id,
+                    user_uuid,
+                    user_no,
+                    user_name,
+                    org_no,
+                    (
+                        SELECT
+                            org_name
+                        FROM
+                            o_org
+                        WHERE
+                            t.org_no = org_no
+                    ) org_name
+                FROM
+                    k_user t
+                WHERE
+                    deleted != '1'
+            ) b ON a.user_id = b.id
+                JOIN k_task_major a2 ON a.task_exam_id = a2.task_id
+                JOIN (
+                SELECT
+                    id
+                FROM
+                    k_task_exam
+                WHERE
+                    deleted != 'D'
+            ) a3 ON a.task_exam_id = a3.id
+        GROUP BY
+            major_id,
+            major_name,
+            org_no,
+            org_name
+    </select>
+
+    <!--完成考试的人按专业、组织统计-->
+    <select id="qryUser4ExamFinishedByMajor" resultType="map" parameterType="map">
+        SELECT
+            count(1) exam_major_finished,
+            c.org_no,
+            c.major_id
+        FROM
+            (
+                SELECT
+                    a.user_id,
+                    a.cnt1 rwgwc,
+                    a.major_id,
+                    k.org_no,
+                    IFNULL(b.cnt2, 0) rwywc,
+                    FLOOR((IFNULL(b.cnt2, 0) / a.cnt1)) rwwcl
+                FROM
+                    (
+                        SELECT
+                            a1.user_id,
+                            a2.major_id,
+                            count(1) cnt1
+                        FROM
+                            k_task_user a1
+                                JOIN (
+                                SELECT
+                                    id
+                                FROM
+                                    k_task_exam
+                                WHERE
+                                    deleted != 'D'
+                            ) a3 ON (a1.task_exam_id = a3.id)
+                                LEFT JOIN k_task_major a2 ON a1.task_exam_id = a2.task_id
+                        GROUP BY
+                            a1.user_id,
+                            a2.major_id
+                    ) a
+                        LEFT JOIN (
+                        SELECT
+                            b1.create_user,
+                            b2.major_id,
+                            count(1) cnt2
+                        FROM
+                            k_task_exam_customer_answer b1
+                                LEFT JOIN k_task_major b2 ON b1.task_exam_id = b2.task_id
+                        GROUP BY
+                            b1.create_user,
+                            b2.major_id
+                    ) b ON (
+                                a.user_id = b.create_user
+                            AND a.major_id = b.major_id
+                        )
+                        LEFT JOIN k_user k ON (a.user_id = k.id)
+            ) c
+        WHERE
+            c.rwwcl = 1
+        GROUP BY
+            c.org_no,
+            c.major_id
+    </select>
+</mapper>

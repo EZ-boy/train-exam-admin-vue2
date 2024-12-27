@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.CoursewareMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.train.Train">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <result column="major_id" jdbcType="INTEGER" property="majorId" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="sub_title" jdbcType="VARCHAR" property="subTitle" />
+    <result column="study_type" jdbcType="VARCHAR" property="studyType" />
+
+    <result column="practical_operation" jdbcType="VARCHAR" property="practicalOperation" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="oper_no" jdbcType="VARCHAR" property="operNo" />
+    <result column="theme_id" jdbcType="INTEGER" property="themeId" />
+      <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+
+  </resultMap>
+
+  <sql id="Base_Column_List">
+          id,
+          file_id,
+          file_type,
+          major_id,
+          title,
+          sub_title,
+          study_type,
+          like_num,
+          comment_num,
+          practical_operation,
+          create_time,
+          update_time,
+          oper_no,
+          theme_id
+  </sql>
+
+  <select id="qryCoursewareList" parameterType="com.mindskip.xzs.domain.train.Train" resultMap="BaseResultMap">
+    select
+        (select file_name from k_attachment b where b.file_id=a.file_id limit 1 ) file_name,
+    <include refid="Base_Column_List" />
+    from k_train a
+    where 1 = 1
+      <if test="majorId != null and majorId !=''">
+          and major_id = #{majorId,jdbcType=INTEGER}
+      </if>
+      <if test="id != null and id !=''">
+          and id = #{id,jdbcType=INTEGER}
+      </if>
+  </select>
+
+
+
+  <insert id="insertCourseware" parameterType="com.mindskip.xzs.domain.train.Train" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO k_train (
+      id,
+      file_id,
+      file_type,
+      major_id,
+      title,
+      sub_title,
+      study_type,
+      like_num,
+      comment_num,
+      practical_operation,
+      create_time,
+      oper_no,
+      theme_id
+    )
+    VALUES
+      (
+        #{id,jdbcType=INTEGER},
+        #{fileId,jdbcType=VARCHAR},
+        #{fileType,jdbcType=VARCHAR},
+        #{majorId,jdbcType=INTEGER},
+        #{title,jdbcType=VARCHAR},
+        #{subTitle,jdbcType=VARCHAR},
+        #{studyType,jdbcType=VARCHAR},
+        #{likeNum,jdbcType=VARCHAR},
+        #{commentNum,jdbcType=VARCHAR},
+        #{practicalOperation,jdbcType=VARCHAR},
+        now(),
+        #{operNo,jdbcType=INTEGER},
+        #{themeId,jdbcType=INTEGER}
+      )
+  </insert>
+
+  <update id="updateCourseware" parameterType="com.mindskip.xzs.domain.train.Train">
+    UPDATE k_train SET
+        file_id = #{fileId,jdbcType=VARCHAR},
+        file_type = #{fileType,jdbcType=VARCHAR},
+        major_id = #{majorId,jdbcType=INTEGER},
+        title = #{title,jdbcType=VARCHAR},
+        sub_title = #{subTitle,jdbcType=VARCHAR},
+        study_type = #{studyType,jdbcType=VARCHAR},
+        practical_operation = #{practicalOperation,jdbcType=VARCHAR},
+        update_time = now(),
+        oper_no = #{operNo,jdbcType=INTEGER},
+        theme_id = #{themeId,jdbcType=INTEGER}
+      WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+
+    <update id="deleteCoursewareById" parameterType="java.lang.Integer">
+        delete from k_train WHERE id = #{id,jdbcType=INTEGER}
+    </update>
+
+</mapper>

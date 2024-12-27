@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.NewTaskExamMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.main.TaskExam">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="task_id"			 jdbcType="INTEGER" property="taskId" />
+    <result column="major_id"			 jdbcType="INTEGER" property="majorId" />
+    <result column="major"			     jdbcType="VARCHAR" property="major" />
+    <result column="task_name"			 jdbcType="VARCHAR" property="taskName" />
+    <result column="radio_num"			 jdbcType="INTEGER" property="radioNum" />
+    <result column="radio_score"		 jdbcType="INTEGER" property="radioScore" />
+    <result column="multiple_num"		 jdbcType="INTEGER" property="multipleNum" />
+    <result column="multiple_score"		 jdbcType="INTEGER" property="multipleScore" />
+    <result column="actual_oper_num"	 jdbcType="INTEGER" property="actualOperNum" />
+    <result column="actual_oper_score"	 jdbcType="INTEGER" property="actualOperScore" />
+    <result column="create_time"		 jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time"		 jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="create_user_no"		 jdbcType="VARCHAR" property="createUserNo" />
+    <result column="deleted"			 jdbcType="VARCHAR" property="deleted" />
+    <result column="frame_text_content_id"	 jdbcType="INTEGER" property="frameTextContentId" />
+    <result column="task_desc"			 jdbcType="VARCHAR" property="taskDesc" />
+    <result column="train_ids"			 jdbcType="VARCHAR" property="trainIds" />
+    <result column="imitate"			 jdbcType="VARCHAR" property="imitate" />
+    <result column="majorType"		 jdbcType="VARCHAR" property="majorTypeC" />
+    <result column="ops_Update"		 jdbcType="INTEGER" property="opsUpdate" />
+    <result column="ops_Id"		 jdbcType="VARCHAR" property="opsId" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, task_name, radio_num, radio_score, multiple_num, multiple_score, actual_oper_num, actual_oper_score, create_time, update_time, create_user_no, deleted, frame_text_content_id, task_desc, train_ids,imitate,majorType
+  </sql>
+
+  <sql id="Base_Column_List1">
+    task_name, radio_num, radio_score, multiple_num, multiple_score, actual_oper_num, actual_oper_score, create_time, update_time, create_user_no, deleted, frame_text_content_id, task_desc, train_ids,imitate
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from k_task_exam
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from k_task_exam
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mindskip.xzs.domain.main.TaskExam" useGeneratedKeys="true" keyProperty="id">
+    insert into k_task_exam (id, task_name, radio_num, radio_score,
+    multiple_num, multiple_score, actual_oper_num, actual_oper_score, create_time, update_time,
+    create_user_no, deleted, frame_text_content_id, task_desc, train_ids)
+    values (#{id,jdbcType=INTEGER}, #{taskName,jdbcType=VARCHAR}, #{radioNum,jdbcType=INTEGER}, #{radioScore,jdbcType=INTEGER},
+     #{multipleNum,jdbcType=INTEGER}, #{multipleScore,jdbcType=INTEGER}, #{actualOperNum,jdbcType=INTEGER},
+     #{actualOperScore,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+      #{createUserNo,jdbcType=VARCHAR}, #{deleted,jdbcType=VARCHAR}, #{frameTextContentId,jdbcType=INTEGER}), #{taskDesc,jdbcType=VARCHAR}, #{trainIds,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.main.TaskExam" useGeneratedKeys="true" keyProperty="id">
+    insert into k_task_exam
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+    <if test="majorTypeC != null">
+      majorType,
+      </if>
+      <if test="taskName != null">
+        task_name,
+      </if>
+      <if test="radioNum != null">
+        radio_num,
+      </if>
+      <if test="radioScore != null">
+        radio_score,
+      </if>
+      <if test="multipleNum != null">
+        multiple_num,
+      </if>
+      <if test="multipleScore != null">
+        multiple_score,
+      </if>
+      <if test="actualOperNum != null">
+        actual_oper_num,
+      </if>
+      <if test="actualOperScore != null">
+        actual_oper_score,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createUserNo != null">
+        create_user_no,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="frameTextContentId != null">
+        frame_text_content_id,
+      </if>
+      <if test="taskDesc != null">
+        task_desc,
+      </if>
+      <if test="trainIds != null">
+        train_ids,
+      </if>
+      <if test="imitate != null">
+        imitate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="majorTypeC != null">
+        #{majorTypeC,jdbcType=VARCHAR},
+      </if>
+      <if test="taskName != null">
+        #{taskName,jdbcType=VARCHAR},
+      </if>
+      <if test="radioNum != null">
+        #{radioNum,jdbcType=INTEGER},
+      </if>
+      <if test="radioScore != null">
+        #{radioScore,jdbcType=INTEGER},
+      </if>
+      <if test="multipleNum != null">
+        #{multipleNum,jdbcType=INTEGER},
+      </if>
+      <if test="multipleScore != null">
+        #{multipleScore,jdbcType=INTEGER},
+      </if>
+      <if test="actualOperNum != null">
+        #{actualOperNum,jdbcType=INTEGER},
+      </if>
+      <if test="actualOperScore != null">
+        #{actualOperScore,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserNo != null">
+        #{createUserNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=VARCHAR},
+      </if>
+      <if test="frameTextContentId != null">
+        #{frameTextContentId,jdbcType=INTEGER},
+      </if>
+      <if test="taskDesc != null">
+        #{taskDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="trainIds != null">
+        #{trainIds,jdbcType=VARCHAR},
+      </if>
+      <if test="imitate != null">
+        #{imitate,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mindskip.xzs.domain.main.TaskExam">
+    update k_task_exam
+    <set>
+      <if test="taskName != null">
+        task_name = #{taskName,jdbcType=VARCHAR},
+      </if>
+      <if test="radioNum != null">
+        radio_num = #{radioNum,jdbcType=INTEGER},
+      </if>
+      <if test="radioScore != null">
+        radio_score = #{radioScore,jdbcType=INTEGER},
+      </if>
+      <if test="multipleNum != null">
+        multiple_num = #{multipleNum,jdbcType=INTEGER},
+      </if>
+      <if test="multipleScore != null">
+        multiple_score = #{multipleScore,jdbcType=INTEGER},
+      </if>
+      <if test="actualOperNum != null">
+        actual_oper_num = #{actualOperNum,jdbcType=INTEGER},
+      </if>
+      <if test="actualOperScore != null">
+        actual_oper_score = #{actualOperScore,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserNo != null">
+        create_user_no = #{createUserNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=VARCHAR},
+      </if>
+      <if test="frameTextContentId != null">
+        frame_text_content_id = #{frameTextContentId,jdbcType=INTEGER},
+      </if>
+      <if test="taskDesc != null">
+        task_desc = #{taskDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="trainIds != null">
+        train_ids = #{trainIds,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mindskip.xzs.domain.main.TaskExam">
+    update t_task_exam
+    set task_name = #{taskName,jdbcType=VARCHAR},
+      radio_num #{radioNum,jdbcType=INTEGER},
+      radio_score = #{radioScore,jdbcType=INTEGER},
+      multiple_num = #{multipleNum,jdbcType=INTEGER},
+      multiple_score = #{multipleScore,jdbcType=INTEGER},
+      actual_oper_num = #{actualOperNum,jdbcType=INTEGER},
+      actual_oper_score = #{actualOperScore,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_user_no = #{createUserNo,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=VARCHAR},
+      frame_text_content_id = #{frameTextContentId,jdbcType=INTEGER},
+      task_desc = #{taskDesc,jdbcType=INTEGER},
+      train_ids = #{trainIds,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="init" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.task.TaskPageRequestVM">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM k_task_exam a
+    WHERE a.deleted != 'D'
+    ORDER BY a.create_time DESC;
+  </select>
+
+  <select id="getImitate" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.task.TaskPageRequestVM">
+    SELECT
+    <include refid="Base_Column_List1" />,
+    a.id,
+    b.major_id,
+    o.ops_Update,
+    o.ops_Id
+    FROM k_task_exam a LEFT JOIN k_task_major b ON a.id = b.task_id
+    LEFT JOIN k_exam_ops o ON a.id = o.exam_Id
+    <where>
+      AND a.deleted != 'D'
+      AND a.imitate = '01'
+      <if test="majorId != null and majorId != ''">
+        AND b.major_id = #{majorId,jdbcType=VARCHAR}
+      </if>
+    </where>
+    ORDER BY a.create_time DESC;
+  </select>
+
+  <select id="getTaskListByMajor" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.task.TaskPageRequestVM">
+    SELECT
+    *
+    FROM
+    (SELECT
+    c.*,
+    d.major,
+    d.deleted major_delete
+    FROM
+    (SELECT
+    a.*,
+    b.task_id,
+    b.major_id
+    FROM
+    k_task_exam a
+    LEFT JOIN k_task_major b
+    ON a.id = b.task_id) c
+    LEFT JOIN k_major d
+    ON c.major_id = d.id) e
+    <where>
+      AND e.deleted != 'D'
+      AND e.major_delete != 'D'
+      <if test="majorId != null">
+        AND e.major_id = #{majorId,jdbcType=INTEGER}
+      </if>
+    </where>
+    ORDER BY e.create_time DESC
+  </select>
+
+  <select id="getByUser" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    SELECT
+    a.*
+    FROM
+    k_task_exam a
+    WHERE a.id IN
+    (SELECT DISTINCT
+    (t.task_exam_id)
+    FROM
+    k_task_user t
+    <where>
+      AND t.user_id = #{userId,jdbcType=INTEGER}
+    </where>
+    )
+    and a.deleted != 'D'
+  </select>
+  <select id="getByTid" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    SELECT
+      major_id
+    FROM
+      k_task_major
+    WHERE task_id = #{taskId,jdbcType=INTEGER}
+  </select>
+
+  <insert id="insertTaskMajor" parameterType="com.mindskip.xzs.domain.main.TaskExam" useGeneratedKeys="true" keyProperty="id">
+    insert into k_task_major
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="taskId != null">
+        task_id,
+      </if>
+      <if test="majorId != null">
+        major_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="taskId != null">
+        #{taskId,jdbcType=INTEGER},
+      </if>
+      <if test="majorId != null">
+        #{majorId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteByTaskId" parameterType="java.lang.Integer">
+    delete from k_task_major
+    where task_id = #{taskId,jdbcType=INTEGER}
+  </delete>
+</mapper>

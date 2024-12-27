@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.ExamOpsMapper">
+    <resultMap id="ExamOpsResultMap" type="com.mindskip.xzs.domain.main.ExamOps">
+        <id column="ops_Id" jdbcType="INTEGER" property="opsId" />
+        <result column="order_No" jdbcType="VARCHAR" property="orderNo" />
+        <result column="ops_Score" jdbcType="VARCHAR" property="opsScore" />
+        <result column="ops_Update" jdbcType="VARCHAR" property="opsUpdate" />
+        <result column="ops_Update_Time" jdbcType="VARCHAR" property="opsUpdateTime" />
+        <result column="exam_Id" jdbcType="INTEGER" property="examId" />
+        <result column="ops_Update_Name" jdbcType="VARCHAR" property="opsUpdateName" />
+    </resultMap>
+    <insert id="addExamOps">
+        INSERT INTO k_exam_ops
+            (
+             order_No,
+             ops_Score,
+             ops_Update,
+             ops_Update_Time,
+             exam_Id,
+             ops_Update_Name)
+        VALUES
+            (
+             #{orderNo,jdbcType=VARCHAR},
+             #{opsScore,jdbcType=VARCHAR},
+             #{opsUpdate,jdbcType=VARCHAR},
+             now(),
+             #{examId,jdbcType=INTEGER},
+             #{opsUpdateName,jdbcType=VARCHAR})
+    </insert>
+    <select id="getExamOps" resultMap="ExamOpsResultMap">
+        SELECT
+        ops_Id,
+        order_No,
+        ops_Score,
+        ops_Update,
+        DATE_FORMAT(ops_Update_Time,'%Y-%m-%d %H:%i:%s') as ops_Update_Time,
+        exam_Id,
+        ops_Update_Name
+        FROM
+        k_exam_ops
+        WHERE
+        exam_Id = #{examId,jdbcType=INTEGER}and
+        ops_Update = #{opsUpdate,jdbcType=VARCHAR}
+    </select>
+</mapper>

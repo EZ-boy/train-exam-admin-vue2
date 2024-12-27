@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.GradeDetailsMapper">
+    <resultMap id="gradeDetailsResultMap" type="com.mindskip.xzs.domain.main.GradeDetails">
+        <result column="orgNo" property="orgNo" jdbcType="VARCHAR"/>
+        <result column="orgName" property="orgName" jdbcType="VARCHAR"/>
+        <result column="userNo" property="userNo" jdbcType="VARCHAR"/>
+        <result column="userName" property="userName" jdbcType="VARCHAR"/>
+        <result column="userScore" property="userScore" jdbcType="VARCHAR"/>
+        <result column="opsScore" property="opsScore" jdbcType="VARCHAR"/>
+        <result column="userScoreTime" property="userScoreTime" jdbcType="VARCHAR"/>
+        <result column="opsScoreTime" property="opsScoreTime" jdbcType="VARCHAR"/>
+        <result column="userTaskName" property="userTaskName" jdbcType="VARCHAR"/>
+        <result column="opsTaskName" property="opsTaskName" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="getGradeDetailsList" parameterType="com.mindskip.xzs.domain.main.GradeDetails" resultMap="gradeDetailsResultMap">
+        SELECT
+            u.org_no orgNo,
+            (SELECT o.org_name from o_org o where o.org_no = u.org_no limit 1) orgName,
+            '' userTaskName,
+            u.user_no userNo,
+            u.user_name userName,
+            '' userScore,
+            '' AS userScoreTime,
+            (SELECT t.task_name FROM k_task_exam t WHERE ops.exam_Id=t.id) opsTaskName,
+            ops.ops_Score opsScore,
+            DATE_FORMAT( ops.ops_Update_Time, '%Y-%m-%d' ) AS opsScoreTime
+        FROM
+            k_exam_ops ops
+            LEFT JOIN k_user u ON ops.ops_update = u.id
+        WHERE
+            u.org_no = #{orgNo}
+        UNION all
+        SELECT
+            u.org_no orgNo,
+            (SELECT o.org_name from o_org o where o.org_no = u.org_no limit 1) orgName,
+            (SELECT t.task_name FROM k_task_exam t WHERE e.task_exam_id=t.id) userTaskName,
+            u.user_no userNo,
+            u.user_name userName,
+            e.user_score userScore,
+            DATE_FORMAT( e.create_time, '%Y-%m-%d' ) AS userScoreTime,
+            ''  opsTaskName,
+            '' as opsScore,
+            '' AS opsScoreTime
+        FROM
+            k_exam_paper_answer e
+            LEFT JOIN k_user u ON u.id = e.create_user
+        WHERE
+            u.org_no = #{orgNo}
+
+
+    </select>
+
+
+</mapper>
+

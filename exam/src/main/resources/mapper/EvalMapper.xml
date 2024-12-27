@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.EvalMapper">
+    <resultMap id="EvalResultMap" type="com.mindskip.xzs.domain.talk.Eval">
+        <id column="oper_id" jdbcType="VARCHAR" property="operId" />
+        <result column="oper_type" jdbcType="VARCHAR" property="operType" />
+        <result column="oper_content" jdbcType="VARCHAR" property="operContent" />
+        <result column="oper_eval" jdbcType="VARCHAR" property="operEval" />
+        <result column="exp_id" jdbcType="VARCHAR" property="expId" />
+        <result column="create_id" jdbcType="VARCHAR" property="createId" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="create_time" jdbcType="VARCHAR" property="createTime" />
+    </resultMap>
+    <select id="pageList" resultMap="EvalResultMap" parameterType="com.mindskip.xzs.viewmodel.talk.EvalSRequestVM">
+        SELECT
+        e.oper_id,
+        e.oper_type,
+        e.oper_content,
+        e.oper_eval,
+        e.exp_id,
+        e.create_id,
+        e.create_by,
+        DATE_FORMAT(e.create_time,'%Y-%m-%d %H:%i:%s') as create_time
+        FROM
+        k_exp_eval e
+    <where>
+            e.oper_type = '01'
+        <if test="expId!= null and expId!= ''">
+            and e.exp_id = #{expId,jdbcType=VARCHAR}
+        </if>
+    </where>
+    </select>
+    <insert id="createEval" parameterType="com.mindskip.xzs.domain.talk.Eval">
+        INSERT INTO k_exp_eval
+            (oper_id,
+             oper_type,
+             oper_content,
+             oper_eval,
+             exp_id,
+             create_id,
+             create_by,
+             create_time)
+        VALUES
+            (#{operId,jdbcType=VARCHAR},
+             #{operType,jdbcType=VARCHAR},
+             #{operContent,jdbcType=VARCHAR},
+             #{operEval,jdbcType=TIMESTAMP},
+             #{expId,jdbcType=TIMESTAMP},
+             #{createId,jdbcType=VARCHAR},
+             #{createBy,jdbcType=VARCHAR},
+             now())
+    </insert>
+    <select id="getAverageOperEvalByExpId" resultType="java.lang.Integer" parameterType="com.mindskip.xzs.domain.talk.Eval">
+        SELECT
+        AVG(e.oper_eval)
+        FROM
+        k_exp_eval e
+        WHERE
+        e.exp_id = #{expId,jdbcType=VARCHAR}
+    </select>
+    <select id="getOperationCountByExpId" resultType="java.lang.Integer" parameterType="com.mindskip.xzs.domain.talk.Eval">
+        SELECT
+        COUNT(e.oper_id)
+        FROM
+        k_exp_eval e
+        WHERE
+        e.exp_id = #{expId,jdbcType=VARCHAR} and e.oper_type = '01'
+    </select>
+</mapper>

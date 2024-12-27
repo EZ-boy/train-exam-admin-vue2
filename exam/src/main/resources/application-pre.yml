@@ -1,0 +1,9 @@
+logging:
+  path: /XXX
+  
+spring:
+  datasource:
+    url: jdbc:XXX
+    username: XXX
+    password: XXX
+    driver-class-name: com.mysql.cj.jdbc.Driver

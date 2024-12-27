@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.TaskUserMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.TaskExamCustomerAnswer">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="task_exam_id" jdbcType="INTEGER" property="taskExamId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="real_name" jdbcType="VARCHAR" property="realName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, task_exam_id, user_id, create_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from k_task_user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from k_task_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mindskip.xzs.domain.TaskExamCustomerAnswer" useGeneratedKeys="true" keyProperty="id">
+    insert into k_task_user (id, task_exam_id, user_id,
+      create_time)
+    values (#{id,jdbcType=INTEGER}, #{taskExamId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER},
+      #{createTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.TaskExamCustomerAnswer" useGeneratedKeys="true" keyProperty="id">
+    insert into k_task_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="taskExamId != null">
+        task_exam_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="taskExamId != null">
+        #{taskExamId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mindskip.xzs.domain.TaskExamCustomerAnswer">
+    update k_task_user
+    <set>
+      <if test="taskExamId != null">
+        task_exam_id = #{taskExamId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mindskip.xzs.domain.TaskExamCustomerAnswer">
+    update k_task_user
+    set task_exam_id = #{taskExamId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+
+
+  <select id="getByTUid"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from k_task_user
+    where task_exam_id = #{tid} and user_id=#{uid}
+    limit 1
+  </select>
+
+
+  <select id="selectByTUid"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from k_task_user
+    where user_id=#{uid} and
+    task_exam_id in
+    <foreach collection="taskIds" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+  </select>
+
+  <select id="selectByTaskId"  resultMap="BaseResultMap">
+    SELECT
+      a.id,
+      a.task_exam_id,
+      a.user_id,
+      a.create_time,
+      b.real_name,
+      b.user_name
+    FROM
+      k_task_user a
+      LEFT JOIN k_user b
+        ON a.user_id = b.id
+    where a.task_exam_id=#{taskId}
+  </select>
+
+  <delete id="deleteByTaskId" parameterType="java.lang.Integer">
+    delete from k_task_user
+    where task_exam_id = #{taskId,jdbcType=INTEGER}
+  </delete>
+</mapper>

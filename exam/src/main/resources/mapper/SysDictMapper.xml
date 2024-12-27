@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.SysDictMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.SysDict">
+
+    <result column="dict_label" jdbcType="VARCHAR" property="dictLabel" />
+    <result column="dict_value" jdbcType="VARCHAR" property="dictValue" />
+    <result column="dict_sort" jdbcType="VARCHAR" property="dictSort" />
+    <result column="dict_type" jdbcType="VARCHAR" property="dictType" />
+
+  </resultMap>
+
+  <select id="selectByType" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select dict_label,dict_value,dict_sort,dict_type
+    from k_sys_dict
+    where del_flag='0'
+      and dict_type=#{dictType,jdbcType=VARCHAR}
+      order by dict_sort asc
+  </select>
+
+
+
+</mapper>

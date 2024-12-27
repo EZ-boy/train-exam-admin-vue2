@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.TrainMapper">
+  <resultMap id="trainResultMap" type="com.mindskip.xzs.domain.train.Train">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <id column="file_type" jdbcType="VARCHAR" property="fileType" />
+    <id column="file_type_name" jdbcType="VARCHAR" property="fileTypeName" />
+    <id column="major_id" jdbcType="INTEGER" property="majorId" />
+    <id column="major" jdbcType="VARCHAR" property="major" />
+    <id column="title" jdbcType="VARCHAR" property="title" />
+    <id column="sub_title" jdbcType="VARCHAR" property="subTitle" />
+    <id column="study_type" jdbcType="VARCHAR" property="studyType" />
+    <id column="like_num" jdbcType="INTEGER" property="likeNum" />
+    <id column="comment_num" jdbcType="INTEGER" property="commentNum" />
+    <id column="practical_operation" jdbcType="VARCHAR" property="practicalOperation" />
+    <id column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <id column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <id column="oper_no" jdbcType="VARCHAR" property="operNo" />
+    <id column="user_no" jdbcType="VARCHAR" property="userNo" />
+
+    <id column="current_time" jdbcType="DOUBLE" property="currentTime" />
+    <id column="total_time" jdbcType="DOUBLE" property="totalTime" />
+    <id column="study_progress" jdbcType="INTEGER" property="studyProgress" />
+    <id column="is_completed" jdbcType="VARCHAR" property="isCompleted" />
+    <id column="comment_content" jdbcType="VARCHAR" property="commentContent" />
+    <id column="user_is_like" jdbcType="VARCHAR" property="userIsLike" />
+    <id column="user_is_comment" jdbcType="VARCHAR" property="userIsComment" />
+    <id column="exam_paper_id" jdbcType="INTEGER" property="examPaperId" />
+  </resultMap>
+
+  <!--  培训学习列表数据查询-->
+  <select id="pageList" resultMap="trainResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.train.TrainRequestVM">
+    SELECT
+    t.id,
+    t.file_id,
+    t.file_type,
+    ( CASE WHEN t.file_type = '01' THEN '视频' WHEN t.file_type = '02' THEN '文档' ELSE '其他' END ) file_type_name,
+    t.major_id,
+    ( SELECT m.major FROM k_major m WHERE m.id = t.major_id ) major,
+    t.title,
+    t.sub_title,
+    t.study_type,
+    IFNULL( t.like_num, 0 ) like_num,
+    IFNULL( t.comment_num, 0 ) comment_num,
+    t.practical_operation,
+    IFNULL( p.CURRENT_TIME, 0 ) `current_time`,
+    IFNULL( p.total_time, 0 ) total_time,
+    IFNULL( p.study_progress, 0 ) study_progress,
+    IFNULL( p.is_completed, '02' ) is_completed,
+    (
+    SELECT
+    c.comment_content
+    FROM
+    k_like_comment c
+    WHERE
+    c.oper_type = '02'
+    AND c.user_no = #{userNo,jdbcType=VARCHAR}
+    AND c.file_id = t.file_id
+    ) comment_content,
+    (
+    SELECT
+    case WHEN COUNT( c.id )  > 0 THEN '是' ELSE '否' end
+    FROM
+    k_like_comment c
+    WHERE
+    c.oper_type = '01'
+    AND c.user_no = #{userNo,jdbcType=VARCHAR}
+    AND c.file_id = t.file_id
+    ) user_is_like,
+    (
+    SELECT
+    case WHEN COUNT( c.id )  > 0 THEN '是' ELSE '否' end
+    FROM
+    k_like_comment c
+    WHERE
+    c.oper_type = '02'
+    AND c.user_no = #{userNo,jdbcType=VARCHAR}
+    AND c.file_id = t.file_id
+    ) user_is_comment
+    FROM
+    k_train t
+    LEFT JOIN ( SELECT p.file_id, p.CURRENT_TIME, p.total_time, p.study_progress, p.is_completed
+    FROM k_study_progress p WHERE p.user_no = #{userNo,jdbcType=VARCHAR} ) p ON t.file_id = p.file_id
+    <where>
+      <if test="majorId != null and majorId !=''">
+        t.major_id = #{majorId,jdbcType=INTEGER}
+      </if>
+      <if test="title != null and title !=''">
+        t.title like concat('%',#{title},'%')
+      </if>
+      <if test="fileType != null and fileType !=''">
+        AND instr(#{fileType,jdbcType=VARCHAR},t.file_type) > 0
+      </if>
+      <if test="majorIds != null and majorIds.size() != 0">
+        AND t.major_id in
+        <foreach item="id" collection="majorIds" open="(" separator=","
+                 close=")">
+          #{id}
+        </foreach>
+      </if>
+    </where>
+    ORDER BY t.create_time DESC
+  </select>
+
+  <!--  培训学习列表数据查询-->
+  <select id="successPageList" resultMap="trainResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.train.TrainRequestVM">
+    SELECT
+    t.id,
+    t.file_id,
+    t.file_type,
+    ( CASE WHEN t.file_type = '01' THEN '视频' WHEN t.file_type = '02' THEN '文档' ELSE '其他' END ) file_type_name,
+    t.major_id,
+    ( SELECT m.major FROM k_major m WHERE m.id = t.major_id ) major,
+    t.title,
+    t.sub_title,
+    t.study_type,
+    IFNULL( t.like_num, 0 ) like_num,
+    IFNULL( t.comment_num, 0 ) comment_num,
+    t.practical_operation,
+    IFNULL( p.CURRENT_TIME, 0 ) `current_time`,
+    IFNULL( p.total_time, 0 ) total_time,
+    IFNULL( p.study_progress, 0 ) study_progress,
+    IFNULL( p.is_completed, '02' ) is_completed,
+    (
+    SELECT
+    c.comment_content
+    FROM
+    k_like_comment c
+    WHERE
+    c.oper_type = '02'
+    AND c.user_no = #{userNo,jdbcType=VARCHAR}
+    AND c.file_id = t.file_id
+    ) comment_content,
+    (
+    SELECT
+    case WHEN COUNT( c.id )  > 0 THEN '是' ELSE '否' end
+    FROM
+    k_like_comment c
+    WHERE
+    c.oper_type = '01'
+    AND c.user_no = #{userNo,jdbcType=VARCHAR}
+    AND c.file_id = t.file_id
+    ) user_is_like,
+    (
+    SELECT
+    case WHEN COUNT( c.id )  > 0 THEN '是' ELSE '否' end
+    FROM
+    k_like_comment c
+    WHERE
+    c.oper_type = '02'
+    AND c.user_no = #{userNo,jdbcType=VARCHAR}
+    AND c.file_id = t.file_id
+    ) user_is_comment
+    FROM
+    k_train t
+    LEFT JOIN ( SELECT p.file_id, p.CURRENT_TIME, p.total_time, p.study_progress, p.is_completed
+    FROM k_study_progress p WHERE p.user_no = #{userNo,jdbcType=VARCHAR} ) p ON t.file_id = p.file_id
+    <where>
+      p.is_completed = '01'
+      <if test="majorId != null and majorId !=''">
+        AND t.major_id = #{majorId,jdbcType=INTEGER}
+      </if>
+      <if test="title != null and title !=''">
+        AND t.title like concat('%',#{title},'%')
+      </if>
+      <if test="fileType != null and fileType !=''">
+        AND instr(#{fileType,jdbcType=VARCHAR},t.file_type) > 0
+      </if>
+      <if test="majorIds != null and majorIds.size() != 0">
+        AND t.major_id in
+        <foreach item="id" collection="majorIds" open="(" separator=","
+                 close=")">
+          #{id}
+        </foreach>
+      </if>
+    </where>
+    ORDER BY t.create_time DESC
+  </select>
+
+  <!--  新增点赞评论数据-->
+  <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.train.Train" useGeneratedKeys="true" keyProperty="id">
+    insert into k_like_comment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="userNo != null">
+        user_no,
+      </if>
+      <if test="operType != null">
+        oper_type,
+      </if>
+      <if test="commentContent != null">
+        comment_content,
+      </if>
+      create_time,
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="userNo != null">
+        #{userNo,jdbcType=VARCHAR},
+      </if>
+      <if test="operType != null">
+        #{operType,jdbcType=VARCHAR},
+      </if>
+      <if test="commentContent != null">
+        #{commentContent,jdbcType=VARCHAR},
+      </if>
+      NOW(),
+    </trim>
+  </insert>
+
+  <!--  更新培训学习信息表点赞数评论数-->
+  <update id="updateByPrimaryKeySelective" parameterType="com.mindskip.xzs.domain.train.Train">
+    update k_train
+    <set>
+      <if test="operType != null and operType == '01'">
+        like_num = case when like_num is NULL then 1 ELSE like_num+1 end
+      </if>
+      <if test="operType != null and operType == '02'">
+        comment_num = case when comment_num is NULL then 1 ELSE comment_num+1 end
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!--  查询学习进度数据-->
+  <select id="queryStudyProgress" resultMap="trainResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.train.TrainRequestVM">
+    SELECT p.id,
+    p.file_id,
+    p.user_no,
+    p.CURRENT_TIME `current_time`,
+    p.total_time,
+    p.study_progress,
+    p.exam_paper_id
+    FROM k_study_progress p
+    <where>
+      <if test="fileId != null and fileId !=''">
+        AND p.file_id = #{fileId,jdbcType=VARCHAR}
+      </if>
+      <if test="userNo != null and userNo !=''">
+        AND p.user_no = #{userNo,jdbcType=VARCHAR}
+      </if>
+      <if test="id != null and id !=''">
+        AND p.id = #{id,jdbcType=INTEGER}
+      </if>
+      <if test="isCompleted != null and isCompleted !=''">
+        AND p.is_completed = #{isCompleted,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+
+  <!--  新增培训学习记录-->
+  <insert id="insertStudyProgress" parameterType="com.mindskip.xzs.domain.train.Train" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO k_study_progress
+        (file_id,
+        user_no,
+        `current_time`,
+        total_time,
+        study_progress,
+        is_completed,
+        create_time,
+        update_time)
+    VALUES (
+        #{fileId,jdbcType=VARCHAR},
+        #{userNo,jdbcType=VARCHAR},
+        #{currentTime,jdbcType=DOUBLE},
+        #{totalTime,jdbcType=DOUBLE},
+        #{studyProgress,jdbcType=INTEGER},
+        #{isCompleted,jdbcType=VARCHAR},
+        NOW(),
+        NOW()
+    )
+  </insert>
+
+  <!--  更新培训学习进度-->
+  <update id="updateStudyProgress" parameterType="com.mindskip.xzs.domain.train.Train">
+    UPDATE k_study_progress
+    <set>
+      <if test="currentTime != null ">
+        `current_time` = #{currentTime,jdbcType=DOUBLE},
+      </if>
+      <if test="studyProgress != null">
+        study_progress = #{studyProgress,jdbcType=INTEGER},
+      </if>
+      <if test="isCompleted != null">
+        is_completed = #{isCompleted,jdbcType=VARCHAR},
+      </if>
+      <if test="examPaperId != null">
+        exam_paper_id = #{examPaperId,jdbcType=VARCHAR},
+      </if>
+      update_time = NOW()
+    </set>
+    WHERE file_id = #{fileId,jdbcType=VARCHAR}
+    AND user_no = #{userNo,jdbcType=VARCHAR}
+  </update>
+
+  <select id="getTrainById" resultType="java.lang.String">
+    select title
+    from k_train
+    <where>
+      <if test="ids != null and ids != ''">
+        and id in
+        <foreach item="item" index="index" collection="ids.split(',')"  open="(" separator="," close=")">
+          #{item}
+        </foreach>
+      </if>
+    </where>
+  </select>
+</mapper>

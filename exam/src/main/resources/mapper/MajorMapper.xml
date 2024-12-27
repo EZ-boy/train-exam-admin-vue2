@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.MajorMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.main.Major">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="major"			 jdbcType="VARCHAR" property="major" />
+    <result column="major_type"			 jdbcType="VARCHAR" property="majorType" />
+    <result column="create_time"			 jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time"			 jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="oper_no"			     jdbcType="VARCHAR" property="operNo" />
+    <result column="major_desc"			     jdbcType="VARCHAR" property="majorDesc" />
+    <result column="deleted"			 jdbcType="VARCHAR" property="deleted" />
+  </resultMap>
+  <resultMap id="themeResultMap" type="com.mindskip.xzs.domain.main.Theme">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="major_id"			 jdbcType="VARCHAR" property="majorId" />
+    <result column="theme"			     jdbcType="VARCHAR" property="theme" />
+    <result column="create_time"			 jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time"			 jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="oper_no"			     jdbcType="VARCHAR" property="operNo" />
+    <result column="deleted"			 jdbcType="VARCHAR" property="deleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, major,major_type, create_time, update_time, oper_no, deleted,major_desc
+  </sql>
+
+  <select id="init" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from k_major
+    where deleted != 'D'
+  </select>
+
+  <insert id="insertMajor" useGeneratedKeys="true" keyProperty="id" parameterType="com.mindskip.xzs.domain.main.Major">
+    insert into k_major (id, major,major_type, create_time,oper_no, deleted,major_desc
+    )
+    values (#{id,jdbcType=INTEGER}, #{major,jdbcType=VARCHAR}, #{majorType,jdbcType=VARCHAR},NOW(),
+            #{operNo,jdbcType=VARCHAR}, #{deleted,jdbcType=VARCHAR}, #{majorDesc,jdbcType=VARCHAR}
+           )
+  </insert>
+
+  <insert id="insertTheme" parameterType="com.mindskip.xzs.domain.main.Theme"
+          useGeneratedKeys="true" keyProperty="id">
+    insert into k_theme
+    (id,major_id,theme,create_time,oper_no,deleted)
+    values
+    <foreach collection="list" item="item" index="index"
+             separator=",">
+      (#{item.id},#{item.majorId},#{item.theme},NOW(),#{item.operNo},
+      #{item.deleted})
+    </foreach>
+  </insert>
+
+  <select id="getMajorById" parameterType="com.mindskip.xzs.domain.main.Major" resultType="Map">
+    select <include refid="Base_Column_List" /> from k_major where id = #{id,jdbcType=INTEGER} and deleted != 'D'
+  </select>
+
+  <select id="getThemeByMajorId" parameterType="com.mindskip.xzs.domain.main.Major" resultMap="themeResultMap">
+    select t.id,t.major_id,t.theme,t.create_time,t.deleted,t.update_time,t.oper_no from k_theme t where t.major_id = #{id,jdbcType=INTEGER} and deleted != 'D'
+  </select>
+
+  <update id="updateMajor"  parameterType="com.mindskip.xzs.domain.main.Major">
+    update k_major
+    <set>
+      <if test="major != null">major = #{major},</if>
+      <if test="operNo != null">oper_no = #{operNo},</if>
+      update_time = NOW(),
+    </set>
+    where id = #{id}
+  </update>
+
+  <select id="countThemeById" parameterType="Integer" resultType="Integer">
+    select count(1) from k_theme t where t.id = #{id,jdbcType=INTEGER} and deleted != 'D'
+  </select>
+
+  <update id="updateTheme"  parameterType="com.mindskip.xzs.domain.main.Theme">
+    update k_theme
+    <set>
+      <if test="theme != null">theme = #{theme},</if>
+      <if test="operNo != null">oper_no = #{operNo},</if>
+      update_time = NOW(),
+      <if test="deleted != null">deleted = #{deleted},</if>
+    </set>
+    where id = #{id}
+  </update>
+
+  <update id="deleteTheme" parameterType="Integer">
+    update k_theme
+    <set>
+      deleted = 'D',
+    </set>
+    where id = #{id}
+  </update>
+
+  <update id="deleteMajor" parameterType="Integer">
+    update k_major
+    <set>
+      deleted = 'D',
+    </set>
+    where id = #{id}
+  </update>
+
+  <update id="deleteThemeByMajorId" parameterType="Integer">
+    update k_theme
+    <set>
+      deleted = 'D',
+    </set>
+    where major_id = #{id}
+  </update>
+
+  <insert id="insertQuestionData" parameterType="com.mindskip.xzs.domain.main.Major" useGeneratedKeys="true" keyProperty="id">
+    insert into K_question
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="questionType != null">
+        question_type,
+      </if>
+      <if test="majorId != null">
+        major_id,
+      </if>
+      <if test="difficult != null">
+        difficult,
+      </if>
+      <if test="correct != null">
+        correct,
+      </if>
+      <if test="infoTextContentId != null">
+        info_text_content_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="sort != null">
+        sort,
+      </if>
+      <if test="score != null">
+        score,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="questionType != null">
+        #{questionType,jdbcType=INTEGER},
+      </if>
+      <if test="majorId != null">
+        #{majorId,jdbcType=INTEGER},
+      </if>
+      <if test="difficult != null">
+        #{difficult,jdbcType=INTEGER},
+      </if>
+      <if test="correct != null">
+        #{correct,jdbcType=VARCHAR},
+      </if>
+      <if test="infoTextContentId != null">
+        #{infoTextContentId,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="score != null">
+        #{score,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+
+</mapper>

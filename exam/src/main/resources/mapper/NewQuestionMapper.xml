@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mindskip.xzs.repository.NewQuestionMapper">
+  <resultMap id="BaseResultMap" type="com.mindskip.xzs.domain.Question">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="question_type" jdbcType="INTEGER" property="questionType" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+    <result column="major_id" jdbcType="INTEGER" property="majorId" />
+    <result column="difficult" jdbcType="INTEGER" property="difficult" />
+    <result column="correct" jdbcType="VARCHAR" property="correct" />
+    <result column="info_text_content_id" jdbcType="INTEGER" property="infoTextContentId" />
+    <result column="create_user" jdbcType="INTEGER" property="createUser" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="deleted" jdbcType="VARCHAR" property="deleted" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, question_type, score, major_id, sort, difficult, correct, info_text_content_id,
+    create_user, status, create_time, deleted
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from t_question
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from t_question
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.mindskip.xzs.domain.Question" useGeneratedKeys="true" keyProperty="id">
+    insert into t_question (id, question_type, score, difficult,
+      correct, info_text_content_id, create_user, major_id,
+      status, create_time, deleted, sort
+      )
+    values (#{id,jdbcType=INTEGER}, #{questionType,jdbcType=INTEGER},
+      #{score,jdbcType=INTEGER}, #{difficult,jdbcType=INTEGER}, #{correct,jdbcType=VARCHAR},
+        #{infoTextContentId,jdbcType=INTEGER}, #{createUser,jdbcType=INTEGER}, #{majorId,jdbcType=INTEGER},
+      #{status,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=VARCHAR},  #{sort,jdbcType=INTEGER},
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.mindskip.xzs.domain.Question" useGeneratedKeys="true" keyProperty="id">
+    insert into t_question
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="questionType != null">
+        question_type,
+      </if>
+      <if test="score != null">
+        score,
+      </if>
+      <if test="difficult != null">
+        difficult,
+      </if>
+      <if test="correct != null">
+        correct,
+      </if>
+      <if test="infoTextContentId != null">
+        info_text_content_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="majorId != null">
+        deleted,
+      </if>
+      <if test="sort != null">
+        deleted,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="questionType != null">
+        #{questionType,jdbcType=INTEGER},
+      </if>
+      <if test="score != null">
+        #{score,jdbcType=INTEGER},
+      </if>
+      <if test="difficult != null">
+        #{difficult,jdbcType=INTEGER},
+      </if>
+      <if test="correct != null">
+        #{correct,jdbcType=VARCHAR},
+      </if>
+      <if test="infoTextContentId != null">
+        #{infoTextContentId,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=VARCHAR},
+      </if>
+      <if test="majorId != null">
+        #{majorId,jdbcType=INTEGER},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.mindskip.xzs.domain.Question">
+    update t_question
+    <set>
+      <if test="questionType != null">
+        question_type = #{questionType,jdbcType=INTEGER},
+      </if>
+      <if test="score != null">
+        score = #{score,jdbcType=INTEGER},
+      </if>
+      <if test="difficult != null">
+        difficult = #{difficult,jdbcType=INTEGER},
+      </if>
+      <if test="correct != null">
+        correct = #{correct,jdbcType=VARCHAR},
+      </if>
+      <if test="infoTextContentId != null">
+        info_text_content_id = #{infoTextContentId,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=VARCHAR},
+      </if>
+      <if test="majorId != null">
+        major_id = #{majorId,jdbcType=INTEGER},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.mindskip.xzs.domain.Question">
+    update t_question
+    set question_type = #{questionType,jdbcType=INTEGER},
+      score = #{score,jdbcType=INTEGER},
+      difficult = #{difficult,jdbcType=INTEGER},
+      correct = #{correct,jdbcType=VARCHAR},
+      info_text_content_id = #{infoTextContentId,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      deleted = #{deleted,jdbcType=VARCHAR}
+      major_id = #{majorId,jdbcType=INTEGER},
+      sort = #{sort,jdbcType=INTEGER},
+   where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+
+
+  <select id="page" resultMap="BaseResultMap" parameterType="com.mindskip.xzs.viewmodel.admin.question.QuestionPageRequestVM">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM k_question
+    <where>
+        and deleted=0
+      <if test="id != null ">
+        and id= #{id}
+      </if>
+      <if test="questionType != null ">
+        and question_type= #{questionType}
+      </if>
+      <if test="content != null">
+        and info_text_content_id in (SELECT id FROM t_text_content WHERE content like concat('%',#{content},'%') )
+      </if>
+    </where>
+  </select>
+
+
+
+  <select id="selectByIds" resultMap="BaseResultMap" >
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM k_question where id in
+    <foreach item="id" collection="ids" open="(" separator=","
+             close=")">
+      #{id}
+    </foreach>
+  </select>
+
+
+  <select id="selectAllCount"  resultType="java.lang.Integer">
+		SELECT count(*) from k_question where  deleted != 'D'
+	</select>
+
+  <select id="selectCountByDate"  resultType="com.mindskip.xzs.domain.other.KeyValue">
+		SELECT create_time as name,COUNT(create_time) as value from
+		        (
+				  SELECT DATE_FORMAT(create_time,'%Y-%m-%d') as create_time from k_question
+					WHERE  deleted != 'D' and  create_time  between  #{startTime}  and  #{endTime}
+				) a
+		GROUP BY create_time
+	</select>
+
+  <select id="getQuestionByType"  resultMap="BaseResultMap">
+    SELECT
+      a.id,
+      a.question_type,
+      a.major_id,
+      a.difficult,
+      a.correct,
+      a.sort,
+      a.score,
+      b.content
+    FROM
+        k_question a
+    LEFT JOIN k_text_content b
+    ON a.info_text_content_id = b.id
+    <where>
+      and a.question_type = #{type}
+      <if test="majorIds != null and majorIds.size() != 0">
+        AND a.major_id in
+        <foreach item="id" collection="majorIds" open="(" separator=","
+                 close=")">
+          #{id}
+        </foreach>
+      </if>
+    </where>
+    ORDER BY RAND() LIMIT #{rows}
+  </select>
+</mapper>
