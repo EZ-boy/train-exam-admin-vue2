@@ -5,7 +5,7 @@
     "description": "考试管理系统",
     "license": "AGPL-3.0",
     "private": true,
-    "homepage": "https://www.mindskip.net/xzs.html",
+    "homepage": "",
     "scripts": {
         "serve": "vue-cli-service serve --mode dev",
         "build": "vue-cli-service build --mode prod",
@@ -17,11 +17,11 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://gitee.com/mindskip/xzs-mysql.git"
+        "url": "https://github.com/EZ-boy/train-exam-admin-vue2.git"
     },
     "bugs": {
-        "url": "https://gitee.com/mindskip/xzs-mysql/issues",
-        "email": "mindskip@qq.com"
+        "url": "",
+        "email": "884023535@qq.com"
     },
     "husky": {
         "hooks": {
